@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <mpi.h>
 #include "julia_handout.h"
 #include "bitmap.h"
 #include "bitmap.c"
-#include <mpi.h>
 
 double x_start=-2.01;
 double x_end=1;
@@ -93,7 +93,7 @@ int main(int argc,char **argv) {
 
 	puts("Comes here\n");
 
-	MPI_Init(NULL, NULL);
+	MPI_Init(int* argc,char*** argv);
 
 	//Variable holding the world size aka number of processes (?)
 
