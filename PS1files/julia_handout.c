@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include "julia_handout.h"
+#include "bitmap.h"
+#include "bitmap.c"
 #include <mpi.h>
 
 double x_start=-2.01;

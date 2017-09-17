@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "bitmap.h"
 
 #define XSIZE 2560
 #define YSIZE 2048
