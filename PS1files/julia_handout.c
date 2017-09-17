@@ -91,7 +91,7 @@ int main(int argc,char **argv) {
 		return 0;
 	}
 
-	MPI_Init(int* argc,char*** argv);
+	MPI_Init(NULL,NULL);
 
 	//Variable holding the world size aka number of processes (?)
 
