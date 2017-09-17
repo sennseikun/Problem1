@@ -91,6 +91,8 @@ int main(int argc,char **argv) {
 		return 0;
 	}
 
+	puts("Comes here\n");
+
 	MPI_Init(NULL, NULL);
 
 	//Variable holding the world size aka number of processes (?)
@@ -98,7 +100,8 @@ int main(int argc,char **argv) {
   int world_size;
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
-	printf("%d\n", world_size);
+	puts("World size: ");
+	puts("%d\n",world_size);
 
 	/* Calculate the range in the y-axis such that we preserve the
 	   aspect ratio */
