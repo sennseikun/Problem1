@@ -91,7 +91,7 @@ int main(int argc,char **argv) {
 		return 0;
 	}
 
-	MPI_Init(NULL, NULL);
+	MPI_Init(int* argc,char*** argv);
 
 	//Variable holding the world size aka number of processes (?)
 
@@ -117,21 +117,26 @@ int main(int argc,char **argv) {
 	int world_rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-	calculate(julia_C);
+	if(world_rank == 0){
 
-  /* create nice image from iteration counts. take care to create it upside
-     down (bmp format) */
-  unsigned char *buffer=calloc(XSIZE*YSIZE*3,1);
-  for(int i=0;i<XSIZE;i++) {
-    for(int j=0;j<YSIZE;j++) {
-      int p=((YSIZE-j-1)*XSIZE+i)*3;
-      fancycolour(buffer+p,pixel[PIXEL(i,j)]);
-    }
-  }
-  /* write image to disk */
-  savebmp("julia.bmp",buffer,XSIZE,YSIZE);
+		calculate(julia_C);
 
-
+	  /* create nice image from iteration counts. take care to create it upside
+	     down (bmp format) */
+	  unsigned char *buffer=calloc(XSIZE*YSIZE*3,1);
+	  for(int i=0;i<XSIZE;i++) {
+	    for(int j=0;j<YSIZE;j++) {
+	      int p=((YSIZE-j-1)*XSIZE+i)*3;
+	      fancycolour(buffer+p,pixel[PIXEL(i,j)]);
+	    }
+	  }
+	  /* write image to disk */
+	  savebmp("julia.bmp",buffer,XSIZE,YSIZE);
+	}
+	else{
+		printf("%s\n", "Hello i am process: ");
+		printf("%d\n", world_rank);
+	}
 
 	MPI_Finalize();
 
