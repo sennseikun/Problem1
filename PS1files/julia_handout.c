@@ -101,7 +101,7 @@ int main(int argc,char **argv) {
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
 	puts("World size: ");
-	puts("%d\n",world_size);
+	printf("%d\n",world_size);
 
 	/* Calculate the range in the y-axis such that we preserve the
 	   aspect ratio */
@@ -138,7 +138,6 @@ int main(int argc,char **argv) {
 	else{
 		printf("%s", "Rank");
 		printf("%d\n", world_rank);
-
 	}
 
 
