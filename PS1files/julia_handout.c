@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <mpi.h>
 #include "julia_handout.h"
-#include "bitmap.h"
-#include "bitmap.c"
+#include <mpi.h>
 
 double x_start=-2.01;
 double x_end=1;
@@ -91,17 +89,12 @@ int main(int argc,char **argv) {
 		return 0;
 	}
 
-	puts("Comes here\n");
-
-	MPI_Init(int* argc,char*** argv);
+	MPI_Init(NULL, NULL);
 
 	//Variable holding the world size aka number of processes (?)
 
   int world_size;
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-
-	puts("World size: ");
-	printf("%d\n",world_size);
 
 	/* Calculate the range in the y-axis such that we preserve the
 	   aspect ratio */
@@ -122,28 +115,23 @@ int main(int argc,char **argv) {
 	int world_rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-	if(world_rank == 0){
-		printf("%s\n", "Rank 0");
-		calculate(julia_C);
-		unsigned char *buffer=calloc(XSIZE*YSIZE*3,1);
-	  for(int i=0;i<XSIZE;i++) {
-	    for(int j=0;j<YSIZE;j++) {
-	      int p=((YSIZE-j-1)*XSIZE+i)*3;
-	      fancycolour(buffer+p,pixel[PIXEL(i,j)]);
-	    }
-	  }
-	  /* write image to disk */
-	  savebmp("julia.bmp",buffer,XSIZE,YSIZE);
-	}
-	else{
-		printf("%s", "Rank");
-		printf("%d\n", world_rank);
-	}
+	calculate(julia_C);
+
+  /* create nice image from iteration counts. take care to create it upside
+     down (bmp format) */
+  unsigned char *buffer=calloc(XSIZE*YSIZE*3,1);
+  for(int i=0;i<XSIZE;i++) {
+    for(int j=0;j<YSIZE;j++) {
+      int p=((YSIZE-j-1)*XSIZE+i)*3;
+      fancycolour(buffer+p,pixel[PIXEL(i,j)]);
+    }
+  }
+  /* write image to disk */
+  savebmp("julia.bmp",buffer,XSIZE,YSIZE);
+
 
 
 	MPI_Finalize();
 
-  /* create nice image from iteration counts. take care to create it upside
-     down (bmp format) */
 	return 0;
 }
