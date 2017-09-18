@@ -48,9 +48,6 @@ complex_t add_real(complex_t a, int b){
 // add julia_c input arg here?
 void calculate(complex_t julia_C, int rank, int worldsize) {
 
-	printf("%s", "Gets here in process: ");
-	printf("%d\n", rank);
-
 	int portion = YSIZE/(worldsize);
 	int pixelPiece[XSIZE*portion];
 
@@ -95,7 +92,6 @@ void calculate(complex_t julia_C, int rank, int worldsize) {
 
 	if(rank == 0){
 
-		printf("%s\n", "Gets through in process 0");
 		for(int i = 0; i < portion*XSIZE; i++){
 			pixel[i] = pixelPiece[i];
 		}
@@ -148,22 +144,8 @@ int main(int argc,char **argv) {
 		int receiveArray[XSIZE*(YSIZE/(world_size))];
 		int part = sizeof(receiveArray)/sizeof(int);
 
-		printf("%s\n", "Gets past first calculate");
-
-		/*for(int x = 0; x < part; x++){
-			pixel[x] = *(pointerToArray + x);
-		}*/
-
-		//printf("%lu\n", sizeof(receiveArray)/sizeof(int));
-
 		for(int i = 1; i < world_size; i++){
 			MPI_Recv(&receiveArray, (sizeof(receiveArray)/sizeof(int)), MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-			printf("%s", "Gets the answer from process: ");
-			printf("%d\n", i);
-
-			printf("%s", "Array length: ");
-			printf("%d\n", part);
 
 			printf("%s", "Received from process: ");
 			printf("%d\n", i);
