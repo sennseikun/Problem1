@@ -1,5 +1,0 @@
-all : julia_handout.o bitmap.o
-    mpicc julia_handout.o bitmap.o -lm -o julia_mpi
-	 
-.PHONY : julia_handout.o
-julia_hand
