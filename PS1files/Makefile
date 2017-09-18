@@ -7,4 +7,4 @@ julia_mpi: julia_handout.c
 	${MPICC} -o julia_mpi julia_handout.c
 
 clean:
-	rm ${EXECS}
+	rm ${EXECS} *.o

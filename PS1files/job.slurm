@@ -14,6 +14,7 @@
 
 module load GCC
 module load OpenMPI/2.0.2
+make
 mpirun ./julia_mpi 0.0 -0.8
 
-thomborr -a
+uname -a
