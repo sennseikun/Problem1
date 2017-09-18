@@ -1,9 +1,10 @@
-CFLAGS+= -std=c99
-objects = julia_handout.o
+EXECS=julia_mpi
+MPICC?=mpicc
 
-myProgram : $(objects)
-	mpicc $(objects) -o julia_mpi
+all: ${EXECS}
 
-.PHONY : clean
+julia_mpi: julia_handout.c
+	${MPICC} -o julia_mpi julia_handout.c
+
 clean:
-	rm julia_handout.o
+	rm ${EXECS}

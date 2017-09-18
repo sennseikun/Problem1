@@ -16,7 +16,6 @@ double step;
 
 int pixel[XSIZE*YSIZE];
 
-
 // I suggest you implement these, however you can do fine without them if you'd rather operate
 // on your complex number directly.
 complex_t square_complex(complex_t c){
@@ -47,9 +46,19 @@ complex_t add_real(complex_t a, int b){
 
 
 // add julia_c input arg here?
-void calculate(complex_t julia_C) {
+void calculate(complex_t julia_C, int rank, int worldsize) {
+
+	printf("%s", "Gets here in process: ");
+	printf("%d\n", rank);
+
+	int portion = YSIZE/(worldsize);
+	int pixelPiece[XSIZE*portion];
+
+	//Loops through portions of the image
+	//Gets result and stores it in a lesser array
+
 	for(int i=0;i<XSIZE;i++) {
-		for(int j=0;j<YSIZE;j++) {
+		for(int j=(rank)*portion;j<YSIZE/(worldsize) + (rank)*portion;j++) {
 
 			/* Calculate the number of iterations until divergence for each pixel.
 			   If divergence never happens, return MAXITER */
@@ -77,8 +86,23 @@ void calculate(complex_t julia_C) {
 
 				if(++iter==MAXITER) break;
 			}
-			pixel[PIXEL(i,j)]=iter;
+
+			//Calculates the position in the subarray
+
+			pixelPiece[PIXEL(i,j - (rank)*portion)]=iter;
 		}
+	}
+
+	if(rank == 0){
+
+		printf("%s\n", "Gets through in process 0");
+		for(int i = 0; i < portion*XSIZE; i++){
+			pixel[i] = pixelPiece[i];
+		}
+	}
+
+	else{
+		MPI_Send(&pixelPiece, (sizeof(pixelPiece)/sizeof(int)), MPI_INT, 0, 0, MPI_COMM_WORLD);
 	}
 }
 
@@ -117,9 +141,37 @@ int main(int argc,char **argv) {
 	int world_rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
+	calculate(julia_C, world_rank, world_size);
+
 	if(world_rank == 0){
 
-		calculate(julia_C);
+		int receiveArray[XSIZE*(YSIZE/(world_size))];
+		int part = sizeof(receiveArray)/sizeof(int);
+
+		printf("%s\n", "Gets past first calculate");
+
+		/*for(int x = 0; x < part; x++){
+			pixel[x] = *(pointerToArray + x);
+		}*/
+
+		//printf("%lu\n", sizeof(receiveArray)/sizeof(int));
+
+		for(int i = 1; i < world_size; i++){
+			MPI_Recv(&receiveArray, (sizeof(receiveArray)/sizeof(int)), MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+			printf("%s", "Gets the answer from process: ");
+			printf("%d\n", i);
+
+			printf("%s", "Array length: ");
+			printf("%d\n", part);
+
+			printf("%s", "Received from process: ");
+			printf("%d\n", i);
+
+			for(int j = 0; j < part;j++){
+				pixel[(i)*part + j] = receiveArray[j];
+			}
+		}
 
 	  /* create nice image from iteration counts. take care to create it upside
 	     down (bmp format) */
@@ -132,10 +184,7 @@ int main(int argc,char **argv) {
 	  }
 	  /* write image to disk */
 	  savebmp("julia.bmp",buffer,XSIZE,YSIZE);
-	}
-	else{
-		printf("%s\n", "Hello i am process: ");
-		printf("%d\n", world_rank);
+		printf("%s\n", "Process 0 has saved the image");
 	}
 
 	MPI_Finalize();
