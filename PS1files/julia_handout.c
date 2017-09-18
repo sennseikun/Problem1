@@ -52,7 +52,7 @@ void calculate(complex_t julia_C, int rank, int worldsize) {
 	int pixelPiece[XSIZE*portion];
 
 	//Loops through portions of the image
-	//Gets result and stores it in a lesser array
+	//Gets result and stores it in a subarray
 
 	for(int i=0;i<XSIZE;i++) {
 		for(int j=(rank)*portion;j<YSIZE/(worldsize) + (rank)*portion;j++) {
@@ -90,12 +90,15 @@ void calculate(complex_t julia_C, int rank, int worldsize) {
 		}
 	}
 
-	if(rank == 0){
+	//If rank 0 update output array directly
 
+	if(rank == 0){
 		for(int i = 0; i < portion*XSIZE; i++){
 			pixel[i] = pixelPiece[i];
 		}
 	}
+
+	//Else send the subarray to rank 0
 
 	else{
 		MPI_Send(&pixelPiece, (sizeof(pixelPiece)/sizeof(int)), MPI_INT, 0, 0, MPI_COMM_WORLD);
@@ -137,12 +140,17 @@ int main(int argc,char **argv) {
 	int world_rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
+	//Run the calculations
 	calculate(julia_C, world_rank, world_size);
 
+
+	//If rank 0 collect all results and merge them
 	if(world_rank == 0){
 
 		int receiveArray[XSIZE*(YSIZE/(world_size))];
 		int part = sizeof(receiveArray)/sizeof(int);
+
+		if(world_size > 1){
 
 		for(int i = 1; i < world_size; i++){
 			MPI_Recv(&receiveArray, (sizeof(receiveArray)/sizeof(int)), MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -154,6 +162,8 @@ int main(int argc,char **argv) {
 				pixel[(i)*part + j] = receiveArray[j];
 			}
 		}
+
+	}
 
 	  /* create nice image from iteration counts. take care to create it upside
 	     down (bmp format) */
